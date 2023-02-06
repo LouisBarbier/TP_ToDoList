@@ -31,17 +31,16 @@ function getToDos(){
         console.log(error)
       )
 }
+
 onMounted(()=>{
   getToDos()
 })
 
 // -- handler pour 'faire/défaire' une chose à partir de l'index dans la liste
 function handlerFaire(chose) {
-  console.log(chose)
   chose.faire();
-  console.log(chose)
   const head=new Headers()
-  head.append("Content-Type", "application/json")
+  head.append("Content-Type", "application/json");
   const fetchOptions={method: "PUT",
     headers: head,
     body: JSON.stringify(chose)}
