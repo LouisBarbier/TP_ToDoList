@@ -13,7 +13,7 @@ defineEmits(["deletec", "fairec"]);
          la fonction qui gèrera cet event aura en paramètre la valeur de index
     -->
     <button @click="$emit('deletec', indexc)">Supprimer</button>
-    <button @click="$emit('fairec', indexc)">
+    <button @click="$emit('fairec', chose)">
       {{ chose.fait ? "Defaire" : "Faire" }}
     </button>
   </li>

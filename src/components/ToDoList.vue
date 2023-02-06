@@ -2,7 +2,7 @@
 // -- import de la fonction permettant de déclarer
 //   une variable comme une varianel d'ETAT
 import { reactive } from "vue";
-
+import { onMounted } from "vue";
 // -- les 2 sous composants utilisés
 import ToDoListItem from "./ToDoListItem.vue";
 import ToDoForm from "./ToDoForm.vue";
@@ -13,22 +13,82 @@ import Chose from "../Chose";
 // -- la liste des choses --> dans le state
 // --> donnée réactive = l'affichage sera actualisée
 //      automatiquement à chque cght dans la liste
-const listeC = reactive([new Chose("menage"), new Chose("Vaiselle")]);
+const url = "https://webmmi.iut-tlse3.fr/~pecatte/todos/public/1/todos";
+let listeC = reactive([]);
 
-// -- handler pour 'faire/défaire' une chose à prtir de l'index dans la liste
-function handlerFaire(idx) {
-  listeC[idx].faire();
+function getToDos(){
+  const fetchOptions={method: "GET"}
+  fetch(url,fetchOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((dataJSON) => {
+        console.log(dataJSON);
+        listeC.splice(0,listeC.length)
+        dataJSON.forEach((v) => listeC.push(new Chose (v.id,v.libelle,v.fait)));
+      })
+      .catch((error) =>
+        console.log(error)
+      )
 }
-// -- handle pour supprimer une chose à prtir de l'index dans la liste
+onMounted(()=>{
+  getToDos()
+})
+
+// -- handler pour 'faire/défaire' une chose à partir de l'index dans la liste
+function handlerFaire(chose) {
+  console.log(chose)
+  chose.faire();
+  console.log(chose)
+  const head=new Headers()
+  head.append("Content-Type", "application/json")
+  const fetchOptions={method: "PUT",
+    headers: head,
+    body: JSON.stringify(chose)}
+  fetch(url,fetchOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((dataJSON) => {
+        getToDos()
+      })
+      .catch((error) =>
+          console.log(error)
+      )
+}
+// -- handle pour supprimer une chose à partir de l'index dans la liste
 function handlerDelete(idx) {
-  listeC.splice(idx, 1);
+  const fetchOptions={method: "DELETE"}
+  fetch(url+"/"+listeC[idx].id,fetchOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((dataJSON) => {
+        getToDos()
+      })
+      .catch((error) =>
+          console.log(error)
+      )
 }
 // -- handler pour ajouter une nouvelle chose à partir
 //    du libelle saisi dans le formulaire
 //     qui se retrouve en paramétre
 function handlerAdd(libelle) {
-  // -- il faut créer une nouvelle "chsoe" instance de la classe
-  listeC.push(new Chose(libelle));
+  const head=new Headers()
+  head.append("Content-Type", "application/json")
+  const fetchOptions={method: "POST",
+    headers: head,
+    body: JSON.stringify({ libelle : libelle })}
+  fetch(url,fetchOptions)
+      .then((response) => {
+        return response.json();
+      })
+      .then((dataJSON) => {
+        getToDos()
+      })
+      .catch((error) =>
+          console.log(error)
+      )
 }
 </script>
 
